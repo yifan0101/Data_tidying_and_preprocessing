@@ -1,3 +1,8 @@
+#----------------------------------------------------------
+# Author: Yifan Meng
+# Data: 2023/01/15
+# Updated: 2023/10/15
+#----------------------------------------------------------
 library(tidyverse)
 library(stringr)
 
@@ -74,6 +79,19 @@ pretidy_pra<-function(x){
     Reactivation<-Reactivation[-c(10*j+1),]
     j<-j+1
   }
+  ################## 上面的写法非常不稳定,尝试用fill向上填充
+  ################## 但是这个版本里NaN和NA也不好处理
+Reactivation <- Reactivation %>%
+  mutate(
+    Duration_Reminiscing = ifelse(is.na(Duration_Reminiscing) | is.nan(Duration_Reminiscing), NA, Duration_Reminiscing),
+    MemoryVividness = ifelse(is.na(MemoryVividness) | is.nan(MemoryVividness), NA, MemoryVividness),
+    MemoryValence = ifelse(is.na(MemoryValence) | is.nan(MemoryValence), NA, MemoryValence),
+    MemoryArousal = ifelse(is.na(MemoryArousal) | is.nan(MemoryArousal), NA, MemoryArousal)
+  )
+  Reactivation <- Reactivation %>%
+  fill("VideoNum", "Duration_Reminiscing", "MemoryVividness", "MemoryValence", "MemoryArousal", .direction = "up") %>%
+  filter(!is.na(Province))
+  #################
   ##Rea中答错的
   Reafalse <- length(Reactivation$ACC[Reactivation$ACC==FALSE])
   #合并表格
